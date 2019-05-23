@@ -167,11 +167,16 @@ namespace IxMilia.BCad
 
         public static Vector RightVectorFromNormal(Vector normal)
         {
-            if (normal == Vector.XAxis)
-                return Vector.ZAxis;
-            var right = Vector.XAxis;
-            var up = normal.Cross(right);
-            return up.Cross(normal).Normalize();
+            // using a variant of the Arbitrary Axis Algorithm from the AutoDesk DXF spec
+            // http://help.autodesk.com/view/OARX/2020/ENU/?guid=GUID-E19E5B42-0CC7-4EBA-B29F-5E1D595149EE
+            if (normal == ZAxis || normal == -ZAxis)
+            {
+                return YAxis.Cross(normal).Normalize();
+            }
+            else
+            {
+                return ZAxis.Cross(normal).Normalize();
+            }
         }
 
         public static Vector NormalFromRightVector(Vector right)

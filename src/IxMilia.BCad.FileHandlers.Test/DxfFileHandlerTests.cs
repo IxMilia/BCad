@@ -1,5 +1,6 @@
 ﻿// Copyright (c) IxMilia.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using System.Linq;
 using IxMilia.BCad.Entities;
@@ -168,6 +169,21 @@ namespace IxMilia.BCad.FileHandlers.Test
             Assert.Equal(2, poly.Vertices.Count());
             Assert.Equal(new Point(1.0, 2.0, 12.0), poly.Vertices.First().Location);
             Assert.Equal(new Point(3.0, 4.0, 12.0), poly.Vertices.Last().Location);
+        }
+
+        [Fact]
+        public void ArcWithNegativeNormalTest()
+        {
+            // gleaned from https://github.com/ixmilia/dxf/issues/105
+            // A 90 degree arc from 270-360 degrees with a negative Z normal is displayed by both AutoCAD and Teigha in Q3.
+            var dxfArc = new DxfArc(DxfPoint.Origin, 1.0, 270.0, 360.0)
+            {
+                Normal = new DxfVector(0.0, 0.0, -1.0)
+            };
+            var arc = (Arc)dxfArc.ToEntity();
+            Assert.True(arc.MidPoint.X < 0.0);
+            Assert.True(arc.MidPoint.Y < 0.0);
+            AssertClose(Math.Abs(arc.MidPoint.X), Math.Abs(arc.MidPoint.Y));
         }
     }
 }
